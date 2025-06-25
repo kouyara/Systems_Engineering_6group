@@ -13,7 +13,15 @@
    ```bash
    cd Systems_Engineering_6group
    ```
-3. 依存パッケージをインストールする
+3. 仮想環境を作成
+   ```bash
+   python3 -m venv .venv
+   ```
+4. 仮想環境をアクティベート
+   ```bash
+   source .venv/bin/activate
+   ```
+5. 依存パッケージをインストールする
    ```bash
    pip install -r requirements.txt
    ```

@@ -1,0 +1,25 @@
+# システムエンジニアリング演習6班
+
+## 概要
+システムエンジニアリング演習6班のwebアプリ。
+アンケート等のフォームが動作し、アンケート結果をグラフ描画できる。
+
+## インストール&セットアップ
+1. リポジトリをクローン
+   ```bash
+   git@github.com:kouyara/Systems_Engineering_6group.git
+   ```
+2. ディレクトリに移動する
+   ```bash
+   cd Systems_Engineering_6group
+   ```
+3. 依存パッケージをインストールする
+   ```bash
+   pip install flask matplotlib
+   ```
+
+## アプリの起動
+ローカル環境でアプリを起動するには、以下のコマンドを実行
+```bash
+python3 app.py
+```

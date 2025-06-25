@@ -15,11 +15,11 @@
    ```
 3. 依存パッケージをインストールする
    ```bash
-   pip install flask matplotlib
+   pip install -r requirements.txt
    ```
 
 ## アプリの起動
 ローカル環境でアプリを起動するには、以下のコマンドを実行
 ```bash
-python3 app.py
+streamlit run app.py
 ```

@@ -1,10 +1,13 @@
 import streamlit as st
 import pandas as pd
 import os
-import japanize_matplotlib
-import matplotlib.pyplot as plt
 
-plt.ion()
+from plot_utils import (
+    show_gender_pie,
+    show_interest_bar,
+    show_experience_skill_line,
+    show_skill_rating_bar,
+)
 
 DATA_FILE = "survey_results.csv"
 COLS = [
@@ -14,7 +17,7 @@ COLS = [
     "experience_years",
     "skill_rating",
     "other_dance_exp",
-    "practice_tools"
+    "practice_tools",
 ]
 
 if not os.path.exists(DATA_FILE):
@@ -43,7 +46,7 @@ with st.form(key="survey_form"):
     other_dance_exp = st.radio("他のダンス経験はありますか？", ["はい", "いいえ"])
     practice_tools = st.multiselect(
         "舞踊の練習で利用しているツールは？ (複数選択可)",
-        ["YouTube", "鏡", "VR/AR", "スタジオ講座", "その他"]
+        ["YouTube", "鏡", "VR/AR", "スタジオ講座", "その他"],
     )
     submitted = st.form_submit_button("送信")
 
@@ -59,7 +62,7 @@ if submitted:
         "experience_years": experience_years,
         "skill_rating": skill_rating,
         "other_dance_exp": other_dance_exp,
-        "practice_tools": ";".join(practice_tools)
+        "practice_tools": ";".join(practice_tools),
     }
     df_save.to_csv(DATA_FILE, index=False)
     st.success("ご回答ありがとうございました！")
@@ -71,104 +74,12 @@ if df.empty or df["name"].isna().all():
 else:
     col1, col2 = st.columns(2)
     with col1:
-        st.subheader("① 性別の割合")
-        gender_counts = (
-            df["gender"]
-            .replace("選択してください", pd.NA)
-            .dropna()
-            .value_counts()
-            .sort_index()
-        )
-        if gender_counts.empty:
-            st.write("※ 性別の回答がまだありません")
-        else:
-            fig1, ax1 = plt.subplots(figsize=(3, 3))   # ★円グラフを小さめ
-            ax1.pie(
-                gender_counts.values,
-                labels=gender_counts.index,
-                autopct="%1.0f%%",
-                startangle=90,
-                colors=["#ffb3c6", "#bde0fe", "#caffbf"][: len(gender_counts)],
-                wedgeprops={"linewidth": 1, "edgecolor": "white"}
-            )
-            ax1.axis("equal")
-            st.pyplot(fig1)
-
+        show_gender_pie(df)
     with col2:
-        st.subheader("② 琉球舞踊への興味")
-        interest_counts = (
-            df["interest_ryukyu"]
-            .dropna()
-            .value_counts()
-            .reindex(["はい", "いいえ", "わからない"])
-            .fillna(0)
-            .astype(int)
-        )
-        if interest_counts.sum() == 0:
-            st.write("※ 興味に関する回答がまだありません")
-        else:
-            fig2, ax2 = plt.subplots(figsize=(6, 4), facecolor="#f7f7f7")
-            bars2 = ax2.bar(
-                interest_counts.index, interest_counts.values,
-                color="#ff4b4b", edgecolor="white", linewidth=0.8
-            )
-            ax2.set_ylabel("人数")
-            ax2.set_ylim(0, interest_counts.values.max() + 1)
-            ax2.bar_label(bars2, padding=3)
-            ax2.yaxis.grid(True, linestyle="--", alpha=0.3)
-            ax2.set_axisbelow(True)
-            for spine in ["top", "right"]:
-                ax2.spines[spine].set_visible(False)
-            fig2.tight_layout()
-            st.pyplot(fig2)
+        show_interest_bar(df)
 
     col3, col4 = st.columns(2)
-
     with col3:
-        st.subheader("③ 舞踊歴と自己評価 (平均)")
-        xpiv = (
-            df.dropna(subset=["experience_years", "skill_rating"])
-            .groupby("experience_years")["skill_rating"]
-            .mean()
-            .sort_index()
-        )
-        if xpiv.empty:
-            st.write("※ 舞踊歴または技術力の回答がまだありません")
-        else:
-            fig3, ax3 = plt.subplots(figsize=(6, 4), facecolor="#f7f7f7")
-            ax3.plot(
-                xpiv.index, xpiv.values,
-                marker="o", linewidth=2
-            )
-            ax3.set_xlabel("舞踊歴 (年)")
-            ax3.set_ylabel("平均 技術力・満足度 (1〜5)")
-            ax3.set_xticks(xpiv.index.astype(int))
-            ax3.set_ylim(1, 5)
-            ax3.yaxis.grid(True, linestyle="--", alpha=0.3)
-            for spine in ["top", "right"]:
-                ax3.spines[spine].set_visible(False)
-            fig3.tight_layout()
-            st.pyplot(fig3)
-
+        show_experience_skill_line(df)
     with col4:
-        st.subheader("④ 技術力・満足度の分布")
-        rating_counts = df["skill_rating"].dropna().value_counts().sort_index()
-        if rating_counts.empty:
-            st.write("※ 技術力・満足度に関する回答がまだありません")
-        else:
-            plt.style.use("ggplot")
-            fig4, ax4 = plt.subplots(figsize=(6, 4), facecolor="#f7f7f7")
-            bars4 = ax4.bar(
-                rating_counts.index, rating_counts.values,
-                color="#ff4b4b", edgecolor="white", linewidth=0.8
-            )
-            ax4.set_xlabel("評価 (1=低〜5=高)")
-            ax4.set_ylabel("人数")
-            ax4.set_ylim(0, rating_counts.values.max() + 1)
-            ax4.bar_label(bars4, labels=[f"{v}人" for v in rating_counts.values], padding=3)
-            ax4.yaxis.grid(True, linestyle="--", alpha=0.3)
-            ax4.set_axisbelow(True)
-            for spine in ["top", "right"]:
-                ax4.spines[spine].set_visible(False)
-            fig4.tight_layout()
-            st.pyplot(fig4)
+        show_skill_rating_bar(df)

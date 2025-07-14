@@ -94,7 +94,7 @@ python version : 3.9.x
    ```
    仮想環境 venv をアクティベート:
    ```bash
-   source ./.venv/bin/activate  
+   source ./.venv/bin/activate
    ```
    依存パッケージをインストールする:
    ```bash

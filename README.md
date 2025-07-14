@@ -106,3 +106,6 @@ python version : 3.9.x
 ```bash
 streamlit run app.py
 ```
+
+docker build -t app .
+docker run -p 8501:8501 app

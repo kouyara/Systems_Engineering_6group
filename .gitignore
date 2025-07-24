@@ -1,1 +1,5 @@
 .venv
+__pycache__/
+*secrets.toml
+firebase_key.json
+.DS_Store

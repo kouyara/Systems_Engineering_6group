@@ -34,10 +34,7 @@ RUN pip install --upgrade pip
 
 WORKDIR /app
 
-COPY requirements.txt ./
-COPY app.py ./
-COPY plot_utils.py ./
-COPY survey_results.csv ./
+COPY . .
 
 RUN pip install -r requirements.txt
 

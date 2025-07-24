@@ -1,0 +1,16 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: streamlit-app
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app:cached
+    working_dir: /app
+    command: streamlit run Home.py --server.port=8501 --server.address=0.0.0.0
+    environment:
+      - PYENV_ROOT=/root/.pyenv
+      - PATH=/root/.pyenv/shims:/root/.pyenv/bin:$PATH
+    restart: unless-stopped

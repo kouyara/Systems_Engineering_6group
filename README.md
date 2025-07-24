@@ -17,15 +17,15 @@
 ### 2. Docker Desktop のインストール
    以下のリンクからDocker Desktopをインストールしてください:
    https://www.docker.com/ja-jp/products/docker-desktop/
-### 3. Dockerイメージをビルド:
+### 3. Docker Composeをビルド:
    ```bash
-   docker build -t app .
+   docker compose up --build
    ```
 
 ## アプリの起動
-Dockerコンテナを起動:
+Docker Composeを起動:
 ```bash
-docker run -p 8501:8501 app
+docker compose up
 ```
 起動後、以下のURLにアクセスしてください：
 http://0.0.0.0:8501/
@@ -34,3 +34,9 @@ http://0.0.0.0:8501/
 ```bash
 streamlit run app.py
 ```
+
+docker run -it --rm \
+  -v $(pwd):/app \
+  -w /app \
+  -p 8080:8080 \
+  app

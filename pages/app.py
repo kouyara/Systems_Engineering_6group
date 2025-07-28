@@ -2,13 +2,6 @@ import streamlit as st
 import pandas as pd
 import os
 
-from plot_utils import (
-    show_gender_pie,
-    show_interest_bar,
-    show_experience_skill_line,
-    show_skill_rating_bar,
-)
-
 DATA_FILE = "survey_results.csv"
 COLS = [
     "name", "email", "age", "gender", "occupation",
@@ -176,20 +169,4 @@ if submitted:
     }
     df_save.to_csv(DATA_FILE, index=False)
     st.success("ご回答ありがとうございました！")
-
-df = pd.read_csv(DATA_FILE)
-
-if df.empty or df["name"].isna().all():
-    st.info("まだ十分な回答がないため、可視化は表示されません🐾")
-else:
-    col1, col2 = st.columns(2)
-    with col1:
-        show_gender_pie(df)
-    with col2:
-        show_interest_bar(df)
-
-    col3, col4 = st.columns(2)
-    with col3:
-        show_experience_skill_line(df)
-    with col4:
-        show_skill_rating_bar(df)
+    st.balloons()

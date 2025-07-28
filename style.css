@@ -50,6 +50,13 @@ h1.custom-title {
     outline: 3px dashed #ffbf47;
     outline-offset: 2px;
 }
+.stButton > button:focus,
+.stButton > button:active {
+    outline: none;
+    box-shadow: none;
+    border: none;
+    color: #ffffff;
+}
 
 @media (max-width: 600px) {
     h1.custom-title {

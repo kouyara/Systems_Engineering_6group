@@ -3,3 +3,4 @@ __pycache__/
 *secrets.toml
 firebase_key.json
 .DS_Store
+for_surveys.mp4

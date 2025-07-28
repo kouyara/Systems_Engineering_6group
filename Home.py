@@ -41,6 +41,12 @@ overview_html = """
 """
 st.markdown(overview_html, unsafe_allow_html=True)
 
+video_path = Path(__file__).with_name("for_surveys.mp4")
+if video_path.exists():
+    st.video(str(video_path))
+else:
+    st.warning("動画ファイル(for_surveys.mp4)が見つかりません。")
+
 col1, col2 = st.columns(2)
 with col1:
     if st.button("アンケートに回答する"):

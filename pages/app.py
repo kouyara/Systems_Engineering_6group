@@ -51,6 +51,7 @@ else:
     df_tmp.to_csv(DATA_FILE, index=False)
 
 st.title("アンケートフォーム (琉球舞踊)")
+st.markdown("※ <span style='color:red'>*</span> は必須項目です。", unsafe_allow_html=True)
 
 with st.form("survey_form"):
     st.subheader("■ 基本情報")

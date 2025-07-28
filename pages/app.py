@@ -2,45 +2,181 @@ import streamlit as st
 import pandas as pd
 import os
 
+if "lang" not in st.session_state:
+    st.session_state.lang = "ja"
+lang_map = {"日本語": "ja", "English": "en"}
+st.session_state.lang = lang_map[st.selectbox("言語 / Language", list(lang_map.keys()))]
+
+t = {
+    "ja": {
+        "font_size_title": "文字の大きさ",
+        "small": "小",
+        "medium": "中",
+        "large": "大",
+        "form_title": "アンケートフォーム (琉球舞踊)",
+        "required_note": "※ <span style='color:red'>*</span> は必須項目です。",
+        "section_basic": "■ 基本情報",
+        "label_email": "メールアドレス <span style='color:red'>*</span>",
+        "label_age": "年齢 <span style='color:red'>*</span>",
+        "label_gender": "性別 <span style='color:red'>*</span>",
+        "gender_options": ["選択してください", "男性", "女性", "その他"],
+        "label_occupation": "職業 (例: 学生・会社員 など) <span style='color:red'>*</span>",
+        "section_about": "■ 琉球舞踊について",
+        "label_interest": "琉球舞踊に興味はありますか？ <span style='color:red'>*</span>",
+        "interest_options": ["機会があれば習いたい", "見てみたい", "いいえ"],
+        "label_genres": "経験のある舞踊・ダンスジャンル（複数選択可） <span style='color:red'>*</span>",
+        "genres_options": ["琉球舞踊", "その他の伝統舞踊", "バレエ", "ジャズ", "コンテンポラリー", "社交", "ヒップホップ", "その他", "未経験"],
+        "label_experience": "ダンス歴 (年数)",
+        "section_ratings": "■ 評価（1〜5）",
+        "label_skill": "舞踊の技術力を1〜5で評価してください",
+        "label_satisfaction": "舞踊の満足度を1〜5で評価してください",
+        "label_difficulty": "独学で舞踊を学ぶことの困難度を1〜5で評価してください",
+        "label_preservation_opinion": "伝統芸能を現代技術で継承・普及する取り組みについてどう思いますか？ <span style='color:red'>*</span>",
+        "label_tech_resistance": "伝統舞踊の保存や教育にIT技術を使うことへの抵抗感はありますか？ <span style='color:red'>*</span>",
+        "label_education_opinion": "このシステムが教育機関で利用されることについてどう思いますか？ <span style='color:red'>*</span>",
+        "label_system_usefulness": "このシステムは舞踊・ダンスの練習に役立つと思いますか？ <span style='color:red'>*</span>",
+        "section_practice": "■ 学習・練習について",
+        "label_practice_problems": "練習で困っていること（複数選択可）",
+        "practice_problems_options": ["正しい動きがわからない", "自分の動作が正しいかわからない", "習得時間がかかる", "手本が少ない", "教わる機会・教室がない", "練習環境がない", "時間が取れない", "モチベーションがない", "その他記述"],
+        "label_practice_tools": "舞踊・ダンスの練習で利用しているツール（複数選択可）",
+        "practice_tools_options": ["実際のレッスン", "レッスン動画", "自撮り確認", "鏡", "AR/VR", "練習アプリ", "その他"],
+        "section_it": "■ IT 技術活用への意識",
+        "label_used_tech_before": "AR/VR・モーションキャプチャなどの技術を使用したことはありますか？ <span style='color:red'>*</span>",
+        "used_tech_before_options": ["はい", "いいえ"],
+        "label_want_compare_3d": "3Dモデルや比較映像で自分の動きを確認したいですか？ <span style='color:red'>*</span>",
+        "want_compare_3d_options": ["はい", "いいえ"],
+        "section_fee": "■ 利用シーンと料金",
+        "label_devices": "どのようなデバイスで使いたいですか？（複数選択可）",
+        "devices_options": ["PC", "スマートフォン", "タブレット", "その他"],
+        "label_pay": "費用がかかっても使用したいと思いますか？ <span style='color:red'>*</span>",
+        "pay_options": ["無料でなければ使わない", "月100円", "月300円", "月500円〜1,000円", "内容次第でそれ以上払える", "わからない"],
+        "label_usefulness_points": "役立つと思う点（複数選択可）",
+        "usefulness_points_options": ["正しい動作を習得しやすい", "時間短縮になる", "独学がしやすい", "客観的に動作を見れる", "映像ではわからない部分が見れる"],
+        "label_frequency": "どれくらいの頻度で利用したいですか？",
+        "frequency_options": ["未回答", "月1", "週1", "それ以上"],
+        "section_motivation": "■ 動機・懸念点",
+        "label_motivate_to_start": "このシステムは琉球舞踊を始めるきっかけになると思いますか？ <span style='color:red'>*</span>",
+        "motivate_to_start_options": ["はい", "いいえ"],
+        "label_start_trigger": "「この機能があれば始めるきっかけになる」と思うもの",
+        "label_concerns": "不安・懸念点",
+        "submit_button": "送信",
+        "error_required": "必須項目（* 印）をすべて入力・選択してください。",
+        "error_missing_intro": "**未入力 / 未選択項目:**",
+        "success_message": "ご回答ありがとうございました！",
+        "unanswered": "未回答"
+    },
+    "en": {
+        "font_size_title": "Font Size",
+        "small": "Small",
+        "medium": "Medium",
+        "large": "Large",
+        "form_title": "Survey Form (Ryukyu Dance)",
+        "required_note": "* indicates required fields.",
+        "section_basic": "■ Basic Information",
+        "label_email": "Email Address <span style='color:red'>*</span>",
+        "label_age": "Age <span style='color:red'>*</span>",
+        "label_gender": "Gender <span style='color:red'>*</span>",
+        "gender_options": ["Please select", "Male", "Female", "Other"],
+        "label_occupation": "Occupation (e.g., Student, Company Employee) <span style='color:red'>*</span>",
+        "section_about": "■ About Ryukyu Dance",
+        "label_interest": "Are you interested in Ryukyu Dance? <span style='color:red'>*</span>",
+        "interest_options": ["Would like to learn if opportunity arises", "Would like to watch", "No"],
+        "label_genres": "Dance genres experienced (multiple selections) <span style='color:red'>*</span>",
+        "genres_options": ["Ryukyu Dance", "Other Traditional Dance", "Ballet", "Jazz", "Contemporary", "Social Dance", "Hip-hop", "Other", "No Experience"],
+        "label_experience": "Dance Experience (Years)",
+        "section_ratings": "■ Ratings (1-5)",
+        "label_skill": "Please rate your dance skills from 1 to 5",
+        "label_satisfaction": "Please rate your satisfaction with dance from 1 to 5",
+        "label_difficulty": "Please rate the difficulty of self-learning dance from 1 to 5",
+        "label_preservation_opinion": "What do you think about preserving and promoting traditional performing arts through modern technology? <span style='color:red'>*</span>",
+        "label_tech_resistance": "Do you have any resistance to using IT for preservation and education of traditional dance? <span style='color:red'>*</span>",
+        "label_education_opinion": "What do you think about using this system in educational institutions? <span style='color:red'>*</span>",
+        "label_system_usefulness": "Do you think this system would help with dance practice? <span style='color:red'>*</span>",
+        "section_practice": "■ About Learning & Practice",
+        "label_practice_problems": "Problems faced during practice (multiple selections)",
+        "practice_problems_options": ["Not sure of correct movements", "Not sure if my movements are correct", "Takes time to master", "Few examples available", "No opportunity or classes", "No practice environment", "Cannot find time", "Lack of motivation", "Other (please specify)"],
+        "label_practice_tools": "Tools used for dance practice (multiple selections)",
+        "practice_tools_options": ["In-person lessons", "Lesson videos", "Self-recording", "Mirror", "AR/VR", "Practice apps", "Other"],
+        "section_it": "■ Attitudes Toward IT",
+        "label_used_tech_before": "Have you used AR/VR or motion capture technologies? <span style='color:red'>*</span>",
+        "used_tech_before_options": ["Yes", "No"],
+        "label_want_compare_3d": "Would you like to check your movements with 3D models or comparison videos? <span style='color:red'>*</span>",
+        "want_compare_3d_options": ["Yes", "No"],
+        "section_fee": "■ Usage & Fees",
+        "label_devices": "Which devices would you like to use? (multiple selections)",
+        "devices_options": ["PC", "Smartphone", "Tablet", "Other"],
+        "label_pay": "Would you be willing to pay for this system? <span style='color:red'>*</span>",
+        "pay_options": ["Won't use unless free", "100 JPY/month", "300 JPY/month", "500–1000 JPY/month", "Willing to pay more depending on content", "Not sure"],
+        "label_usefulness_points": "Points you think would be helpful (multiple selections)",
+        "usefulness_points_options": ["Easier to learn correct movements", "Saves time", "Facilitates self-learning", "Can view movements objectively", "See details not visible in videos"],
+        "label_frequency": "How often would you like to use it?",
+        "frequency_options": ["Unanswered", "Once a month", "Once a week", "More often"],
+        "section_motivation": "■ Motivation & Concerns",
+        "label_motivate_to_start": "Do you think this system would motivate you to start Ryukyu dance? <span style='color:red'>*</span>",
+        "motivate_to_start_options": ["Yes", "No"],
+        "label_start_trigger": "Features that would motivate you to start",
+        "label_concerns": "Anxieties / Concerns",
+        "submit_button": "Submit",
+        "error_required": "Please complete all required fields (*) .",
+        "error_missing_intro": "**Missing items:**",
+        "success_message": "Thank you for your response!",
+        "unanswered": "Unanswered"
+    }
+}
+
+current = t[st.session_state.lang]
+unanswered = current["unanswered"]
+
+if "font_size" not in st.session_state:
+    st.session_state.font_size = "medium"
 st.markdown(
-    """
-    <style>
-    .st-emotion-cache-1s2v671 { display: contents; }
-    </style>
-    """,
-    unsafe_allow_html=True,
+    f"<h5 style='font-weight:600; margin-bottom:0.5rem;'>{current['font_size_title']}</h5>",
+    unsafe_allow_html=True
+)
+col_small, col_medium, col_large = st.columns(3, gap="small")
+with col_small:
+    if st.button(current["small"]):
+        st.session_state.font_size = "small"
+with col_medium:
+    if st.button(current["medium"]):
+        st.session_state.font_size = "medium"
+with col_large:
+    if st.button(current["large"]):
+        st.session_state.font_size = "large"
+font_map = {"small": "14px", "medium": "18px", "large": "24px"}
+st.markdown(
+    f"<style>html, body, [class*=\"css\"] {{font-size: {font_map[st.session_state.font_size]} !important;}}</style>",
+    unsafe_allow_html=True
+)
+st.markdown(
+    "<style>.st-emotion-cache-1s2v671 { display: contents; }</style>",
+    unsafe_allow_html=True
 )
 
 def radio_rating(key: str, max_value: int = 5):
-    """1〜5 評価（未回答を含む）"""
     opts = [None] + list(range(1, max_value + 1))
     return st.radio(
         "", opts, index=0, key=key,
-        format_func=lambda x: "未回答" if x is None else str(x),
+        format_func=lambda x: unanswered if x is None else str(x),
         horizontal=True,
     )
 
 def radio_unanswered(key: str, choices: list[str]):
-    """はい／いいえなど（未回答を含む）"""
     return st.radio(
-        "", ["未回答"] + choices, index=0, key=key, horizontal=True,
+        "", [unanswered] + choices, index=0, key=key, horizontal=True
     )
 
 DATA_FILE = "survey_results.csv"
 COLS = [
     "email","age","gender","occupation",
     "interest_ryukyu","dance_genres","experience_years",
-    "skill_rating","satisfaction_rating",
-    "self_learning_difficulty","practice_problems",
-    "practice_tools","preservation_opinion",
-    "tech_resistance","education_opinion",
-    "used_tech_before","want_compare_3d",
-    "preferred_devices","pay_willingness",
-    "system_usefulness","usefulness_points",
-    "usage_frequency","motivate_to_start",
-    "start_trigger_feature","concerns",
+    "skill_rating","satisfaction_rating","self_learning_difficulty",
+    "practice_problems","practice_tools","preservation_opinion",
+    "tech_resistance","education_opinion","used_tech_before",
+    "want_compare_3d","preferred_devices","pay_willingness",
+    "system_usefulness","usefulness_points","usage_frequency",
+    "motivate_to_start","start_trigger_feature","concerns"
 ]
-
 if not os.path.exists(DATA_FILE):
     pd.DataFrame(columns=COLS).to_csv(DATA_FILE, index=False)
 else:
@@ -50,168 +186,108 @@ else:
             df_tmp[c] = pd.NA
     df_tmp.to_csv(DATA_FILE, index=False)
 
-st.title("アンケートフォーム (琉球舞踊)")
-st.markdown("※ <span style='color:red'>*</span> は必須項目です。", unsafe_allow_html=True)
+st.title(current["form_title"])
+st.markdown(current["required_note"], unsafe_allow_html=True)
 
 with st.form("survey_form"):
-    st.subheader("■ 基本情報")
-    st.markdown("メールアドレス <span style='color:red'>*</span>", unsafe_allow_html=True)
+    st.subheader(current["section_basic"])
+    st.markdown(current["label_email"], unsafe_allow_html=True)
     email = st.text_input("", key="email")
-
-    st.markdown("年齢 <span style='color:red'>*</span>", unsafe_allow_html=True)
+    st.markdown(current["label_age"], unsafe_allow_html=True)
     age = st.number_input("", 0, 120, step=1, key="age")
-
-    st.markdown("性別 <span style='color:red'>*</span>", unsafe_allow_html=True)
-    gender = st.selectbox("", ["選択してください", "男性", "女性", "その他"], key="gender")
-
-    st.markdown("職業 (例: 学生・会社員 など) <span style='color:red'>*</span>", unsafe_allow_html=True)
+    st.markdown(current["label_gender"], unsafe_allow_html=True)
+    gender = st.selectbox("", current["gender_options"], key="gender")
+    st.markdown(current["label_occupation"], unsafe_allow_html=True)
     occupation = st.text_input("", key="occupation")
 
-    st.subheader("■ 琉球舞踊について")
-    st.markdown("琉球舞踊に興味はありますか？ <span style='color:red'>*</span>", unsafe_allow_html=True)
-    interest_ryukyu = radio_unanswered("interest_ryukyu", ["機会があれば習いたい","見てみたい","いいえ"])
-
-    st.markdown("経験のある舞踊・ダンスジャンル（複数選択可） <span style='color:red'>*</span>", unsafe_allow_html=True)
-    dance_genres = st.multiselect(
-        "", ["琉球舞踊","その他の伝統舞踊","バレエ","ジャズ",
-                "コンテンポラリー","社交","ヒップホップ","その他","未経験"],
-        key="dance_genres",
-    )
-
-    st.markdown("ダンス歴 (年数)", unsafe_allow_html=True)
+    st.subheader(current["section_about"])
+    st.markdown(current["label_interest"], unsafe_allow_html=True)
+    interest_ryukyu = radio_unanswered("interest_ryukyu", current["interest_options"])
+    st.markdown(current["label_genres"], unsafe_allow_html=True)
+    dance_genres = st.multiselect("", current["genres_options"], key="dance_genres")
+    st.markdown(current["label_experience"], unsafe_allow_html=True)
     experience_years = st.number_input("", 0, 100, step=1, key="experience_years")
 
-    st.subheader("■ 評価（1〜5）")
-    st.markdown("舞踊の技術力を1〜5で評価してください", unsafe_allow_html=True)
+    st.subheader(current["section_ratings"])
+    st.markdown(current["label_skill"], unsafe_allow_html=True)
     skill_rating = radio_rating("skill_rating")
-
-    st.markdown("舞踊の満足度を1〜5で評価してください", unsafe_allow_html=True)
+    st.markdown(current["label_satisfaction"], unsafe_allow_html=True)
     satisfaction_rating = radio_rating("satisfaction_rating")
-
-    st.markdown("独学で舞踊を学ぶことの困難度を1〜5で評価してください", unsafe_allow_html=True)
+    st.markdown(current["label_difficulty"], unsafe_allow_html=True)
     self_learning_difficulty = radio_rating("self_learning_difficulty")
-
-    st.markdown("伝統芸能を現代技術で継承・普及する取り組みについてどう思いますか？ <span style='color:red'>*</span>", unsafe_allow_html=True)
+    st.markdown(current["label_preservation_opinion"], unsafe_allow_html=True)
     preservation_opinion = radio_rating("preservation_opinion")
-
-    st.markdown("伝統舞踊の保存や教育にIT技術を使うことへの抵抗感はありますか？ <span style='color:red'>*</span>", unsafe_allow_html=True)
+    st.markdown(current["label_tech_resistance"], unsafe_allow_html=True)
     tech_resistance = radio_rating("tech_resistance")
-
-    st.markdown("このシステムが教育機関で利用されることについてどう思いますか？ <span style='color:red'>*</span>", unsafe_allow_html=True)
+    st.markdown(current["label_education_opinion"], unsafe_allow_html=True)
     education_opinion = radio_rating("education_opinion")
-
-    st.markdown("このシステムは舞踊・ダンスの練習に役立つと思いますか？ <span style='color:red'>*</span>", unsafe_allow_html=True)
+    st.markdown(current["label_system_usefulness"], unsafe_allow_html=True)
     system_usefulness = radio_rating("system_usefulness")
 
-    st.subheader("■ 学習・練習について")
-    st.markdown("練習で困っていること（複数選択可）", unsafe_allow_html=True)
-    practice_problems = st.multiselect(
-        "", ["正しい動きがわからない","自分の動作が正しいかわからない",
-            "習得時間がかかる","手本が少ない","教わる機会・教室がない",
-            "練習環境がない","時間が取れない","モチベーションがない","その他記述"],
-        key="practice_problems",
-    )
+    st.subheader(current["section_practice"])
+    st.markdown(current["label_practice_problems"], unsafe_allow_html=True)
+    practice_problems = st.multiselect("", current["practice_problems_options"], key="practice_problems")
+    st.markdown(current["label_practice_tools"], unsafe_allow_html=True)
+    practice_tools = st.multiselect("", current["practice_tools_options"], key="practice_tools")
 
-    st.markdown("舞踊・ダンスの練習で利用しているツール（複数選択可）", unsafe_allow_html=True)
-    practice_tools = st.multiselect(
-        "", ["実際のレッスン","レッスン動画","自撮り確認","鏡","AR/VR","練習アプリ","その他"],
-        key="practice_tools",
-    )
+    st.subheader(current["section_it"])
+    st.markdown(current["label_used_tech_before"], unsafe_allow_html=True)
+    used_tech_before = radio_unanswered("used_tech_before", current["used_tech_before_options"])
+    st.markdown(current["label_want_compare_3d"], unsafe_allow_html=True)
+    want_compare_3d = radio_unanswered("want_compare_3d", current["want_compare_3d_options"])
 
-    st.subheader("■ IT 技術活用への意識")
-    st.markdown("AR/VR・モーションキャプチャなどの技術を使用したことはありますか？ <span style='color:red'>*</span>", unsafe_allow_html=True)
-    used_tech_before = radio_unanswered("used_tech_before", ["はい","いいえ"])
+    st.subheader(current["section_fee"])
+    st.markdown(current["label_devices"], unsafe_allow_html=True)
+    preferred_devices = st.multiselect("", current["devices_options"], key="preferred_devices")
+    st.markdown(current["label_pay"], unsafe_allow_html=True)
+    pay_willingness = st.selectbox("", current["pay_options"], key="pay_willingness")
+    st.markdown(current["label_usefulness_points"], unsafe_allow_html=True)
+    usefulness_points = st.multiselect("", current["usefulness_points_options"], key="usefulness_points")
+    st.markdown(current["label_frequency"], unsafe_allow_html=True)
+    usage_frequency = st.selectbox("", current["frequency_options"], key="usage_frequency")
 
-    st.markdown("3Dモデルや比較映像で自分の動きを確認したいですか？ <span style='color:red'>*</span>", unsafe_allow_html=True)
-    want_compare_3d = radio_unanswered("want_compare_3d", ["はい","いいえ"])
-
-    st.subheader("■ 利用シーンと料金")
-    st.markdown("どのようなデバイスで使いたいですか？（複数選択可）", unsafe_allow_html=True)
-    preferred_devices = st.multiselect("", ["PC","スマートフォン","タブレット","その他"], key="preferred_devices")
-
-    st.markdown("費用がかかっても使用したいと思いますか？ <span style='color:red'>*</span>", unsafe_allow_html=True)
-    pay_willingness = st.selectbox(
-        "", ["無料でなければ使わない","月100円","月300円","月500円〜1,000円","内容次第でそれ以上払える","わからない"],
-        key="pay_willingness",
-    )
-
-    st.markdown("役立つと思う点（複数選択可）", unsafe_allow_html=True)
-    usefulness_points = st.multiselect(
-        "", ["正しい動作を習得しやすい","時間短縮になる","独学がしやすい",
-                "客観的に動作を見れる","映像ではわからない部分が見れる"],
-        key="usefulness_points",
-    )
-
-    st.markdown("どれくらいの頻度で利用したいですか？", unsafe_allow_html=True)
-    usage_frequency = st.selectbox("", ["未回答","月1","週1","それ以上"], key="usage_frequency")
-
-    st.subheader("■ 動機・懸念点")
-    st.markdown("このシステムは琉球舞踊を始めるきっかけになると思いますか？ <span style='color:red'>*</span>", unsafe_allow_html=True)
-    motivate_to_start = radio_unanswered("motivate_to_start", ["はい","いいえ"])
-
-    st.markdown("「この機能があれば始めるきっかけになる」と思うもの", unsafe_allow_html=True)
+    st.subheader(current["section_motivation"])
+    st.markdown(current["label_motivate_to_start"], unsafe_allow_html=True)
+    motivate_to_start = radio_unanswered("motivate_to_start", current["motivate_to_start_options"])
+    st.markdown(current["label_start_trigger"], unsafe_allow_html=True)
     start_trigger_feature = st.text_area("", key="start_trigger_feature")
-
-    st.markdown("不安・懸念点", unsafe_allow_html=True)
+    st.markdown(current["label_concerns"], unsafe_allow_html=True)
     concerns = st.text_area("", key="concerns")
 
-    submitted = st.form_submit_button("送信")
+    submitted = st.form_submit_button(current["submit_button"])
 
 if submitted:
-    checks = {
-        "メールアドレス": email.strip() != "",
-        "年齢": age > 0,
-        "性別": gender != "選択してください",
-        "職業": occupation.strip() != "",
-        "琉球舞踊への興味": interest_ryukyu in ["機会があれば習いたい","見てみたい","いいえ"],
-        "経験ジャンル": len(dance_genres) > 0,
-        "現代技術での継承評価": preservation_opinion in range(1,6),
-        "IT 活用への抵抗感": tech_resistance in range(1,6),
-        "教育機関での利用評価": education_opinion in range(1,6),
-        "システム有用性評価": system_usefulness in range(1,6),
-        "AR/VR 使用経験": used_tech_before in ["はい","いいえ"],
-        "3D 比較ニーズ": want_compare_3d in ["はい","いいえ"],
-        "支払意欲": bool(pay_willingness),
-        "始めるきっかけになるか": motivate_to_start in ["はい","いいえ"],
-    }
+    checks = {current["label_email"]: email.strip() != "", current["label_age"]: age > 0,
+                current["label_gender"]: gender != current["gender_options"][0], current["label_occupation"]: occupation.strip() != "",
+                current["label_interest"]: interest_ryukyu in current["interest_options"],
+                current["label_genres"]: len(dance_genres) > 0,
+                current["label_preservation_opinion"]: preservation_opinion in range(1, 6),
+                current["label_tech_resistance"]: tech_resistance in range(1, 6),
+                current["label_education_opinion"]: education_opinion in range(1, 6),
+                current["label_system_usefulness"]: system_usefulness in range(1, 6),
+                current["label_used_tech_before"]: used_tech_before in current["used_tech_before_options"],
+                current["label_want_compare_3d"]: want_compare_3d in current["want_compare_3d_options"],
+                current["label_pay"]: bool(pay_willingness),
+                current["label_motivate_to_start"]: motivate_to_start in current["motivate_to_start_options"]}
     missing = [label for label, ok in checks.items() if not ok]
-    all_ok = len(missing) == 0
-
-    if not all_ok:
-        st.error(
-            "必須項目（* 印）をすべて入力・選択してください。"
-            + "\n\n**未入力 / 未選択項目:**\n- "
-            + "\n- ".join(missing)
-        )
+    if missing:
+        st.error(current["error_required"] + "\n\n" + current["error_missing_intro"] + "\n- " + "\n- ".join(missing))
     else:
         df = pd.read_csv(DATA_FILE)
         df.loc[len(df)] = {
-            "email": email,
-            "age": age,
-            "gender": gender,
-            "occupation": occupation,
-            "interest_ryukyu": interest_ryukyu,
-            "dance_genres": ";".join(dance_genres),
-            "experience_years": experience_years,
-            "skill_rating": skill_rating,
-            "satisfaction_rating": satisfaction_rating,
-            "self_learning_difficulty": self_learning_difficulty,
-            "practice_problems": ";".join(practice_problems),
-            "practice_tools": ";".join(practice_tools),
-            "preservation_opinion": preservation_opinion,
-            "tech_resistance": tech_resistance,
-            "education_opinion": education_opinion,
-            "used_tech_before": used_tech_before,
-            "want_compare_3d": want_compare_3d,
-            "preferred_devices": ";".join(preferred_devices),
-            "pay_willingness": pay_willingness,
-            "system_usefulness": system_usefulness,
-            "usefulness_points": ";".join(usefulness_points),
-            "usage_frequency": usage_frequency,
-            "motivate_to_start": motivate_to_start,
-            "start_trigger_feature": start_trigger_feature,
-            "concerns": concerns,
+            "email": email, "age": age, "gender": gender, "occupation": occupation,
+            "interest_ryukyu": interest_ryukyu, "dance_genres": ";".join(dance_genres),
+            "experience_years": experience_years, "skill_rating": skill_rating,
+            "satisfaction_rating": satisfaction_rating, "self_learning_difficulty": self_learning_difficulty,
+            "practice_problems": ";".join(practice_problems), "practice_tools": ";".join(practice_tools),
+            "preservation_opinion": preservation_opinion, "tech_resistance": tech_resistance,
+            "education_opinion": education_opinion, "used_tech_before": used_tech_before,
+            "want_compare_3d": want_compare_3d, "preferred_devices": ";".join(preferred_devices),
+            "pay_willingness": pay_willingness, "system_usefulness": system_usefulness,
+            "usefulness_points": ";".join(usefulness_points), "usage_frequency": usage_frequency,
+            "motivate_to_start": motivate_to_start, "start_trigger_feature": start_trigger_feature,
+            "concerns": concerns
         }
         df.to_csv(DATA_FILE, index=False)
-        st.success("ご回答ありがとうございました！")
+        st.success(current["success_message"])
         st.balloons()

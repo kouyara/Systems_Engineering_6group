@@ -67,16 +67,17 @@ t = {
 if "lang" not in st.session_state:
     st.session_state.lang = "ja"
 
-current = t[st.session_state.lang]
-
-st.markdown(
-    f'<h1 class="custom-title">{current["welcome_title"]}</h1>',
-    unsafe_allow_html=True
-)
-
 lang_map = {"日本語": "ja", "English": "en"}
-lang_choice = st.selectbox("言語 / Language", list(lang_map.keys()))
+display_langs = list(lang_map.keys())
+reverse_map = {v: k for k, v in lang_map.items()}
+initial_index = display_langs.index(reverse_map.get(st.session_state.lang, "日本語"))
+lang_choice = st.selectbox("言語 / Language", display_langs, index=initial_index)
 st.session_state.lang = lang_map[lang_choice]
+
+current = t[st.session_state.lang]
+unanswered = current.get("unanswered", "")
+
+st.markdown(f'<h1 class="custom-title">{current["welcome_title"]}</h1>', unsafe_allow_html=True)
 
 if "font_size" not in st.session_state:
     st.session_state.font_size = "medium"

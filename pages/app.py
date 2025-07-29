@@ -123,14 +123,21 @@ t = {
 
 if "lang" not in st.session_state:
     st.session_state.lang = "ja"
-current = t[st.session_state.lang]
-unanswered = current["unanswered"]
 
-st.title(current["form_title"])
+lang_map = {"日本語": "ja", "English": "en"}
+display_langs = list(lang_map.keys())
+reverse_map = {v: k for k, v in lang_map.items()}
+initial_index = display_langs.index(reverse_map.get(st.session_state.lang, "日本語"))
+lang_choice = st.selectbox("言語 / Language", display_langs, index=initial_index)
+st.session_state.lang = lang_map[lang_choice]
+
+current = t[st.session_state.lang]
+unanswered = current.get("unanswered", "")
+
 if st.button(current["home_button"]):
     st.switch_page("./Home.py")
-lang_map = {"日本語": "ja", "English": "en"}
-st.session_state.lang = lang_map[st.selectbox("言語 / Language", list(lang_map.keys()))]
+
+st.title(current["form_title"])
 
 if "font_size" not in st.session_state:
     st.session_state.font_size = "medium"

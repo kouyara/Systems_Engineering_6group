@@ -22,6 +22,7 @@ t = {
     "ja": {
         "admin_only_warning": "このページは管理者専用です。ログインしてください。",
         "font_size_title": "文字の大きさ",
+        "home_button": "ホーム画面へ戻る",
         "small": "小",
         "medium": "中",
         "large": "大",
@@ -42,6 +43,7 @@ t = {
     "en": {
         "admin_only_warning": "This page is for administrators only. Please log in.",
         "font_size_title": "Font Size",
+        "home_button": "Back to Home",
         "small": "Small",
         "medium": "Medium",
         "large": "Large",
@@ -60,18 +62,24 @@ t = {
         "logout_success": "You have been logged out",
     }
 }
+
 if "lang" not in st.session_state:
     st.session_state.lang = "ja"
 
-current = t[st.session_state.lang]
+lang_map = {"日本語": "ja", "English": "en"}
+display_langs = list(lang_map.keys())
+reverse_map = {v: k for k, v in lang_map.items()}
+initial_index = display_langs.index(reverse_map.get(st.session_state.lang, "日本語"))
+lang_choice = st.selectbox("言語 / Language", display_langs, index=initial_index)
+st.session_state.lang = lang_map[lang_choice]
 
-st.title(current["admin_page_title"])
-if st.button("ホーム画面へ戻る"):
+current = t[st.session_state.lang]
+unanswered = current.get("unanswered", "")
+
+if st.button(current["home_button"]):
     st.switch_page("./Home.py")
 
-lang_map = {"日本語": "ja", "English": "en"}
-choice = st.selectbox("言語 / Language", list(lang_map.keys()))
-st.session_state.lang = lang_map[choice]
+st.title(current["admin_page_title"])
 
 if "admin_user" not in st.session_state or st.session_state.admin_user is None:
     st.warning(current["admin_only_warning"])

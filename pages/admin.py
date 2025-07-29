@@ -18,12 +18,6 @@ from plot_utils import (
     show_system_usefulness_bar,
 )
 
-if "lang" not in st.session_state:
-    st.session_state.lang = "ja"
-lang_map = {"日本語": "ja", "English": "en"}
-choice = st.selectbox("言語 / Language", list(lang_map.keys()))
-st.session_state.lang = lang_map[choice]
-
 t = {
     "ja": {
         "admin_only_warning": "このページは管理者専用です。ログインしてください。",
@@ -66,7 +60,18 @@ t = {
         "logout_success": "You have been logged out",
     }
 }
+if "lang" not in st.session_state:
+    st.session_state.lang = "ja"
+
 current = t[st.session_state.lang]
+
+st.title(current["admin_page_title"])
+if st.button("ホーム画面へ戻る"):
+    st.switch_page("./Home.py")
+
+lang_map = {"日本語": "ja", "English": "en"}
+choice = st.selectbox("言語 / Language", list(lang_map.keys()))
+st.session_state.lang = lang_map[choice]
 
 if "admin_user" not in st.session_state or st.session_state.admin_user is None:
     st.warning(current["admin_only_warning"])
@@ -96,7 +101,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.title(current["admin_page_title"])
 st.write(f"{current['logged_in_as']}{st.session_state.admin_user}")
 
 DATA_FILE = Path(__file__).parents[1] / "survey_results.csv"

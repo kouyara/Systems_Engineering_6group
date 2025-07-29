@@ -2,11 +2,6 @@ import streamlit as st
 import pandas as pd
 import os
 
-if "lang" not in st.session_state:
-    st.session_state.lang = "ja"
-lang_map = {"日本語": "ja", "English": "en"}
-st.session_state.lang = lang_map[st.selectbox("言語 / Language", list(lang_map.keys()))]
-
 t = {
     "ja": {
         "font_size_title": "文字の大きさ",
@@ -132,7 +127,15 @@ t = {
     }
 }
 
+if "lang" not in st.session_state:
+    st.session_state.lang = "ja"
+
 current = t[st.session_state.lang]
+
+st.title(current["confirm_title"])
+
+lang_map = {"日本語": "ja", "English": "en"}
+st.session_state.lang = lang_map[st.selectbox("言語 / Language", list(lang_map.keys()))]
 
 if "form_data" not in st.session_state:
     st.error("先にアンケートを入力してください。")
@@ -190,8 +193,6 @@ st.markdown(
 )
 
 form_values = {col: st.session_state.form_data.get(col, None) for col in COLS}
-
-st.title(current["confirm_title"])
 
 if "form_data" not in st.session_state:
     st.error("先にアンケートを入力してください。")

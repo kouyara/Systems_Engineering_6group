@@ -7,13 +7,6 @@ def load_css(file_name: str):
 
 load_css(Path(__file__).with_name("style.css"))
 
-if "lang" not in st.session_state:
-    st.session_state.lang = "ja"
-
-lang_map = {"日本語": "ja", "English": "en"}
-lang_choice = st.selectbox("言語 / Language", list(lang_map.keys()))
-st.session_state.lang = lang_map[lang_choice]
-
 t = {
     "ja": {
         "font_size_title": "文字の大きさ",
@@ -71,7 +64,19 @@ t = {
     }
 }
 
+if "lang" not in st.session_state:
+    st.session_state.lang = "ja"
+
 current = t[st.session_state.lang]
+
+st.markdown(
+    f'<h1 class="custom-title">{current["welcome_title"]}</h1>',
+    unsafe_allow_html=True
+)
+
+lang_map = {"日本語": "ja", "English": "en"}
+lang_choice = st.selectbox("言語 / Language", list(lang_map.keys()))
+st.session_state.lang = lang_map[lang_choice]
 
 if "font_size" not in st.session_state:
     st.session_state.font_size = "medium"
@@ -101,11 +106,6 @@ st.markdown(
     }}
     </style>
     """,
-    unsafe_allow_html=True
-)
-
-st.markdown(
-    f'<h1 class="custom-title">{current["welcome_title"]}</h1>',
     unsafe_allow_html=True
 )
 

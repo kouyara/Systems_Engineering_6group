@@ -156,14 +156,18 @@ st.markdown(
 def radio_rating(key: str, max_value: int = 5):
     opts = [None] + list(range(1, max_value + 1))
     return st.radio(
-        "", opts, index=0, key=key,
+        "", opts, key=key,
+        index=opts.index(st.session_state.form_data[key]) if st.session_state.form_data[key] in opts else 0,
         format_func=lambda x: unanswered if x is None else str(x),
         horizontal=True,
     )
 
 def radio_unanswered(key: str, choices: list[str]):
+    answerlist = [unanswered] + choices
     return st.radio(
-        "", [unanswered] + choices, index=0, key=key, horizontal=True
+        "", answerlist,
+        index=answerlist.index(st.session_state.form_data[key]) if st.session_state.form_data[key] in answerlist else 0,
+        key=key, horizontal=True,
     )
 
 DATA_FILE = "survey_results.csv"
@@ -177,6 +181,10 @@ COLS = [
     "system_usefulness","usefulness_points","usage_frequency",
     "motivate_to_start","start_trigger_feature","concerns"
 ]
+
+if "form_data" not in st.session_state:
+    st.session_state.form_data = {k: "" for k in COLS}
+
 if not os.path.exists(DATA_FILE):
     pd.DataFrame(columns=COLS).to_csv(DATA_FILE, index=False)
 else:
@@ -186,73 +194,131 @@ else:
             df_tmp[c] = pd.NA
     df_tmp.to_csv(DATA_FILE, index=False)
 
+def update_column(col):
+    st.session_state.form_data[f"{col}"] = eval(col)
+
 st.title(current["form_title"])
 st.markdown(current["required_note"], unsafe_allow_html=True)
 
 with st.form("survey_form"):
+    # 基本情報
     st.subheader(current["section_basic"])
-    st.markdown(current["label_email"], unsafe_allow_html=True)
-    email = st.text_input("", key="email")
-    st.markdown(current["label_age"], unsafe_allow_html=True)
-    age = st.number_input("", 0, 120, step=1, key="age")
-    st.markdown(current["label_gender"], unsafe_allow_html=True)
-    gender = st.selectbox("", current["gender_options"], key="gender")
-    st.markdown(current["label_occupation"], unsafe_allow_html=True)
-    occupation = st.text_input("", key="occupation")
 
+    st.markdown(current["label_email"], unsafe_allow_html=True)
+    email = st.text_input("", key="email", value=st.session_state.form_data["email"])
+
+    st.markdown(current["label_age"], unsafe_allow_html=True)
+    age = st.number_input(
+        "", 0, 120, step=1, key="age",
+        value=0 if type(st.session_state.form_data["age"]) == str else int(st.session_state.form_data["age"])
+    )
+
+    st.markdown(current["label_gender"], unsafe_allow_html=True)
+    gender = st.selectbox(
+        "", current["gender_options"], key="gender",
+        index= current["gender_options"].index(st.session_state.form_data["gender"]) if st.session_state.form_data["gender"] in current["gender_options"] else 0
+    )
+
+    st.markdown(current["label_occupation"], unsafe_allow_html=True)
+    occupation = st.text_input("", key="occupation", value=st.session_state.form_data["occupation"])
+
+    # 琉球舞踊について
     st.subheader(current["section_about"])
     st.markdown(current["label_interest"], unsafe_allow_html=True)
     interest_ryukyu = radio_unanswered("interest_ryukyu", current["interest_options"])
-    st.markdown(current["label_genres"], unsafe_allow_html=True)
-    dance_genres = st.multiselect("", current["genres_options"], key="dance_genres")
-    st.markdown(current["label_experience"], unsafe_allow_html=True)
-    experience_years = st.number_input("", 0, 100, step=1, key="experience_years")
 
+    st.markdown(current["label_genres"], unsafe_allow_html=True)
+    dance_genres = st.multiselect(
+        "", current["genres_options"], key="dance_genres",
+        default=[] if type(st.session_state.form_data["dance_genres"]) == str else st.session_state.form_data["dance_genres"]
+    )
+
+    st.markdown(current["label_experience"], unsafe_allow_html=True)
+    experience_years = st.number_input(
+        "", 0, 100, step=1, key="experience_years",
+        value=0 if type(st.session_state.form_data["experience_years"]) == str else int(st.session_state.form_data["experience_years"])
+    )
+
+    # 評価
     st.subheader(current["section_ratings"])
     st.markdown(current["label_skill"], unsafe_allow_html=True)
     skill_rating = radio_rating("skill_rating")
+
     st.markdown(current["label_satisfaction"], unsafe_allow_html=True)
     satisfaction_rating = radio_rating("satisfaction_rating")
+
     st.markdown(current["label_difficulty"], unsafe_allow_html=True)
     self_learning_difficulty = radio_rating("self_learning_difficulty")
+
     st.markdown(current["label_preservation_opinion"], unsafe_allow_html=True)
     preservation_opinion = radio_rating("preservation_opinion")
+
     st.markdown(current["label_tech_resistance"], unsafe_allow_html=True)
     tech_resistance = radio_rating("tech_resistance")
+
     st.markdown(current["label_education_opinion"], unsafe_allow_html=True)
     education_opinion = radio_rating("education_opinion")
+
     st.markdown(current["label_system_usefulness"], unsafe_allow_html=True)
     system_usefulness = radio_rating("system_usefulness")
 
+    # 学習・練習について
     st.subheader(current["section_practice"])
     st.markdown(current["label_practice_problems"], unsafe_allow_html=True)
-    practice_problems = st.multiselect("", current["practice_problems_options"], key="practice_problems")
-    st.markdown(current["label_practice_tools"], unsafe_allow_html=True)
-    practice_tools = st.multiselect("", current["practice_tools_options"], key="practice_tools")
+    practice_problems = st.multiselect(
+        "", current["practice_problems_options"], key="practice_problems",
+        default=[] if type(st.session_state.form_data["practice_problems"]) == str else st.session_state.form_data["practice_problems"]
+    )
 
+    st.markdown(current["label_practice_tools"], unsafe_allow_html=True)
+    practice_tools = st.multiselect(
+        "", current["practice_tools_options"], key="practice_tools",
+        default=[] if type(st.session_state.form_data["practice_tools"]) == str else st.session_state.form_data["practice_tools"]
+    )
+
+    # IT技術活用への意識
     st.subheader(current["section_it"])
     st.markdown(current["label_used_tech_before"], unsafe_allow_html=True)
     used_tech_before = radio_unanswered("used_tech_before", current["used_tech_before_options"])
+
     st.markdown(current["label_want_compare_3d"], unsafe_allow_html=True)
     want_compare_3d = radio_unanswered("want_compare_3d", current["want_compare_3d_options"])
 
+    # 利用シーンと料金
     st.subheader(current["section_fee"])
     st.markdown(current["label_devices"], unsafe_allow_html=True)
-    preferred_devices = st.multiselect("", current["devices_options"], key="preferred_devices")
-    st.markdown(current["label_pay"], unsafe_allow_html=True)
-    pay_willingness = st.selectbox("", current["pay_options"], key="pay_willingness")
-    st.markdown(current["label_usefulness_points"], unsafe_allow_html=True)
-    usefulness_points = st.multiselect("", current["usefulness_points_options"], key="usefulness_points")
-    st.markdown(current["label_frequency"], unsafe_allow_html=True)
-    usage_frequency = st.selectbox("", current["frequency_options"], key="usage_frequency")
+    preferred_devices = st.multiselect(
+        "", current["devices_options"], key="preferred_devices",
+        default=[] if type(st.session_state.form_data["preferred_devices"]) == str else st.session_state.form_data["preferred_devices"]
+    )
 
+    st.markdown(current["label_pay"], unsafe_allow_html=True)
+    pay_willingness = st.selectbox(
+        "", current["pay_options"], key="pay_willingness",
+        index= current["pay_options"].index(st.session_state.form_data["pay_willingness"]) if st.session_state.form_data["pay_willingness"] in current["pay_options"] else 0
+    )
+
+    st.markdown(current["label_usefulness_points"], unsafe_allow_html=True)
+    usefulness_points = st.multiselect(
+        "", current["usefulness_points_options"], key="usefulness_points",
+        default=[] if type(st.session_state.form_data["usefulness_points"]) == str else st.session_state.form_data["usefulness_points"]
+    )
+    st.markdown(current["label_frequency"], unsafe_allow_html=True)
+    usage_frequency = st.selectbox(
+        "", current["frequency_options"], key="usage_frequency",
+        index= current["frequency_options"].index(st.session_state.form_data["usage_frequency"]) if st.session_state.form_data["usage_frequency"] in current["frequency_options"] else 0
+    )
+
+    # 動機・懸念点
     st.subheader(current["section_motivation"])
     st.markdown(current["label_motivate_to_start"], unsafe_allow_html=True)
     motivate_to_start = radio_unanswered("motivate_to_start", current["motivate_to_start_options"])
+
     st.markdown(current["label_start_trigger"], unsafe_allow_html=True)
-    start_trigger_feature = st.text_area("", key="start_trigger_feature")
+    start_trigger_feature = st.text_area("", key="start_trigger_feature", value=st.session_state.form_data["start_trigger_feature"])
+
     st.markdown(current["label_concerns"], unsafe_allow_html=True)
-    concerns = st.text_area("", key="concerns")
+    concerns = st.text_area("", key="concerns", value=st.session_state.form_data["concerns"])
 
     submitted = st.form_submit_button(current["submit_button"])
 
@@ -273,21 +339,7 @@ if submitted:
     if missing:
         st.error(current["error_required"] + "\n\n" + current["error_missing_intro"] + "\n- " + "\n- ".join(missing))
     else:
-        df = pd.read_csv(DATA_FILE)
-        df.loc[len(df)] = {
-            "email": email, "age": age, "gender": gender, "occupation": occupation,
-            "interest_ryukyu": interest_ryukyu, "dance_genres": ";".join(dance_genres),
-            "experience_years": experience_years, "skill_rating": skill_rating,
-            "satisfaction_rating": satisfaction_rating, "self_learning_difficulty": self_learning_difficulty,
-            "practice_problems": ";".join(practice_problems), "practice_tools": ";".join(practice_tools),
-            "preservation_opinion": preservation_opinion, "tech_resistance": tech_resistance,
-            "education_opinion": education_opinion, "used_tech_before": used_tech_before,
-            "want_compare_3d": want_compare_3d, "preferred_devices": ";".join(preferred_devices),
-            "pay_willingness": pay_willingness, "system_usefulness": system_usefulness,
-            "usefulness_points": ";".join(usefulness_points), "usage_frequency": usage_frequency,
-            "motivate_to_start": motivate_to_start, "start_trigger_feature": start_trigger_feature,
-            "concerns": concerns
-        }
-        df.to_csv(DATA_FILE, index=False)
         st.success(current["success_message"])
-        st.balloons()
+        for col in COLS:
+            update_column(col)
+        st.switch_page('./pages/confirm.py')

@@ -1,11 +1,1 @@
 name,age,gender,rating,email,occupation,interest_ryukyu,experience_years,skill_rating,other_dance_exp,practice_tools,dance_genres,satisfaction_rating,self_learning_difficulty,practice_problems,preservation_opinion,tech_resistance,education_opinion,used_tech_before,want_compare_3d,preferred_devices,pay_willingness,system_usefulness,usefulness_points,usage_frequency,motivate_to_start,start_trigger_feature,concerns
-,0,選択してください,,,,はい,0,3.0,はい,,,,,,,,,,,,,,,,,,
-,0,選択してください,,,,はい,0,3.0,はい,,,,,,,,,,,,,,,,,,
-kouya,23,男性,,kouya624694@gmail.com,学生,いいえ,0,3.0,いいえ,,,,,,,,,,,,,,,,,,
-ibuki,23,男性,,ibuki@example.com,学生,はい,10,5.0,はい,その他;VR/AR;YouTube;スタジオ講座,,,,,,,,,,,,,,,,,
-hoge,23,男性,,hoge@example.com,学生,いいえ,5,2.0,いいえ,,,,,,,,,,,,,,,,,,
-hoge,23,女性,,hoge@example.com,学生,いいえ,5,2.0,いいえ,,,,,,,,,,,,,,,,,,
-,0,選択してください,,,,機会があれば習いたい,0,3.0,,,,3.0,3.0,,3.0,3.0,3.0,はい,はい,,無料でなければ使わない,3.0,,月1,はい,,
-,2,男性,,kouya,学生,機会があれば習いたい,0,,,,ジャズ,,,,1.0,1.0,1.0,はい,はい,,月100円,1.0,,未回答,はい,,
-,2,男性,,kouya,学生,機会があれば習いたい,0,,,,ジャズ,,,,1.0,1.0,1.0,はい,はい,,月100円,1.0,,未回答,はい,,
-,2,男性,,kouya,学生,機会があれば習いたい,0,,,,ジャズ,,,,1.0,1.0,1.0,はい,はい,,無料でなければ使わない,1.0,,未回答,はい,,

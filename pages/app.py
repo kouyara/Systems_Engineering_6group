@@ -2,14 +2,10 @@ import streamlit as st
 import pandas as pd
 import os
 
-if "lang" not in st.session_state:
-    st.session_state.lang = "ja"
-lang_map = {"日本語": "ja", "English": "en"}
-st.session_state.lang = lang_map[st.selectbox("言語 / Language", list(lang_map.keys()))]
-
 t = {
     "ja": {
         "font_size_title": "文字の大きさ",
+        "home_button": "ホーム画面へ戻る",
         "small": "小",
         "medium": "中",
         "large": "大",
@@ -67,6 +63,7 @@ t = {
     },
     "en": {
         "font_size_title": "Font Size",
+        "home_button": "Back to Home",
         "small": "Small",
         "medium": "Medium",
         "large": "Large",
@@ -124,15 +121,27 @@ t = {
     }
 }
 
+if "lang" not in st.session_state:
+    st.session_state.lang = "ja"
+
+lang_map = {"日本語": "ja", "English": "en"}
+display_langs = list(lang_map.keys())
+reverse_map = {v: k for k, v in lang_map.items()}
+initial_index = display_langs.index(reverse_map.get(st.session_state.lang, "日本語"))
+lang_choice = st.selectbox("言語 / Language", display_langs, index=initial_index)
+st.session_state.lang = lang_map[lang_choice]
+
 current = t[st.session_state.lang]
-unanswered = current["unanswered"]
+unanswered = current.get("unanswered", "")
+
+if st.button(current["home_button"]):
+    st.switch_page("./Home.py")
+
+st.title(current["form_title"])
 
 if "font_size" not in st.session_state:
     st.session_state.font_size = "medium"
-st.markdown(
-    f"<h5 style='font-weight:600; margin-bottom:0.5rem;'>{current['font_size_title']}</h5>",
-    unsafe_allow_html=True
-)
+st.markdown(f"<h5 style='font-weight:600; margin-bottom:0.5rem;'>{current['font_size_title']}</h5>", unsafe_allow_html=True)
 col_small, col_medium, col_large = st.columns(3, gap="small")
 with col_small:
     if st.button(current["small"]):
@@ -144,27 +153,20 @@ with col_large:
     if st.button(current["large"]):
         st.session_state.font_size = "large"
 font_map = {"small": "14px", "medium": "18px", "large": "24px"}
-st.markdown(
-    f"<style>html, body, [class*=\"css\"] {{font-size: {font_map[st.session_state.font_size]} !important;}}</style>",
-    unsafe_allow_html=True
-)
-st.markdown(
-    "<style>.st-emotion-cache-1s2v671 { display: contents; }</style>",
-    unsafe_allow_html=True
-)
+st.markdown(f"<style>html, body, [class*=\"css\"] {{font-size: {font_map[st.session_state.font_size]} !important;}}</style>", unsafe_allow_html=True)
+st.markdown("<style>.st-emotion-cache-1s2v671 { display: contents; }</style>", unsafe_allow_html=True)
 
 def radio_rating(key: str, max_value: int = 5):
     opts = [None] + list(range(1, max_value + 1))
-    return st.radio(
-        "", opts, index=0, key=key,
-        format_func=lambda x: unanswered if x is None else str(x),
-        horizontal=True,
-    )
+    return st.radio("", opts, key=key,
+                    index=opts.index(st.session_state.form_data[key]) if st.session_state.form_data[key] in opts else 0,
+                    format_func=lambda x: unanswered if x is None else str(x), horizontal=True)
 
 def radio_unanswered(key: str, choices: list[str]):
-    return st.radio(
-        "", [unanswered] + choices, index=0, key=key, horizontal=True
-    )
+    answerlist = [unanswered] + choices
+    return st.radio("", answerlist,
+                    index=answerlist.index(st.session_state.form_data[key]) if st.session_state.form_data[key] in answerlist else 0,
+                    key=key, horizontal=True)
 
 DATA_FILE = "survey_results.csv"
 COLS = [
@@ -177,6 +179,10 @@ COLS = [
     "system_usefulness","usefulness_points","usage_frequency",
     "motivate_to_start","start_trigger_feature","concerns"
 ]
+
+if "form_data" not in st.session_state:
+    st.session_state.form_data = {k: "" for k in COLS}
+
 if not os.path.exists(DATA_FILE):
     pd.DataFrame(columns=COLS).to_csv(DATA_FILE, index=False)
 else:
@@ -186,28 +192,32 @@ else:
             df_tmp[c] = pd.NA
     df_tmp.to_csv(DATA_FILE, index=False)
 
-st.title(current["form_title"])
+def update_column(col):
+    st.session_state.form_data[col] = eval(col)
+
 st.markdown(current["required_note"], unsafe_allow_html=True)
 
 with st.form("survey_form"):
     st.subheader(current["section_basic"])
     st.markdown(current["label_email"], unsafe_allow_html=True)
-    email = st.text_input("", key="email")
+    email = st.text_input("", key="email", value=st.session_state.form_data["email"])
     st.markdown(current["label_age"], unsafe_allow_html=True)
-    age = st.number_input("", 0, 120, step=1, key="age")
+    age = st.number_input("", 0, 120, step=1, key="age",
+                            value=0 if isinstance(st.session_state.form_data["age"], str) else int(st.session_state.form_data["age"]))
     st.markdown(current["label_gender"], unsafe_allow_html=True)
-    gender = st.selectbox("", current["gender_options"], key="gender")
+    gender = st.selectbox("", current["gender_options"], key="gender",
+                            index=current["gender_options"].index(st.session_state.form_data["gender"]) if st.session_state.form_data["gender"] in current["gender_options"] else 0)
     st.markdown(current["label_occupation"], unsafe_allow_html=True)
-    occupation = st.text_input("", key="occupation")
-
+    occupation = st.text_input("", key="occupation", value=st.session_state.form_data["occupation"])
     st.subheader(current["section_about"])
     st.markdown(current["label_interest"], unsafe_allow_html=True)
     interest_ryukyu = radio_unanswered("interest_ryukyu", current["interest_options"])
     st.markdown(current["label_genres"], unsafe_allow_html=True)
-    dance_genres = st.multiselect("", current["genres_options"], key="dance_genres")
+    dance_genres = st.multiselect("", current["genres_options"], key="dance_genres",
+                                    default=[] if isinstance(st.session_state.form_data["dance_genres"], str) else st.session_state.form_data["dance_genres"])
     st.markdown(current["label_experience"], unsafe_allow_html=True)
-    experience_years = st.number_input("", 0, 100, step=1, key="experience_years")
-
+    experience_years = st.number_input("", 0, 100, step=1, key="experience_years",
+                                        value=0 if isinstance(st.session_state.form_data["experience_years"], str) else int(st.session_state.form_data["experience_years"]))
     st.subheader(current["section_ratings"])
     st.markdown(current["label_skill"], unsafe_allow_html=True)
     skill_rating = radio_rating("skill_rating")
@@ -216,78 +226,79 @@ with st.form("survey_form"):
     st.markdown(current["label_difficulty"], unsafe_allow_html=True)
     self_learning_difficulty = radio_rating("self_learning_difficulty")
     st.markdown(current["label_preservation_opinion"], unsafe_allow_html=True)
-    preservation_opinion = radio_rating("preservation_opinion")
+    po_options = [unanswered, "まったく賛成しない", "どちらでもない", "非常に賛成する"]
+    preservation_opinion = st.selectbox("", po_options, key="preservation_opinion",
+                                        index=po_options.index(st.session_state.form_data["preservation_opinion"]) if st.session_state.form_data["preservation_opinion"] in po_options else 0)
     st.markdown(current["label_tech_resistance"], unsafe_allow_html=True)
-    tech_resistance = radio_rating("tech_resistance")
+    tr_options = [unanswered] + current["used_tech_before_options"]
+    tech_resistance = st.radio("", tr_options, key="tech_resistance",
+                               index=tr_options.index(st.session_state.form_data["tech_resistance"]) if st.session_state.form_data["tech_resistance"] in tr_options else 0,
+                               horizontal=True)
     st.markdown(current["label_education_opinion"], unsafe_allow_html=True)
-    education_opinion = radio_rating("education_opinion")
+    eo_options = [unanswered, "まったく賛成しない", "どちらでもない", "非常に賛成する"]
+    education_opinion = st.selectbox("", eo_options, key="education_opinion",
+                                     index=eo_options.index(st.session_state.form_data["education_opinion"]) if st.session_state.form_data["education_opinion"] in eo_options else 0)
     st.markdown(current["label_system_usefulness"], unsafe_allow_html=True)
-    system_usefulness = radio_rating("system_usefulness")
-
+    su_options = [unanswered] + current["used_tech_before_options"]
+    system_usefulness = st.radio("", su_options, key="system_usefulness",
+                                 index=su_options.index(st.session_state.form_data["system_usefulness"]) if st.session_state.form_data["system_usefulness"] in su_options else 0,
+                                 horizontal=True)
     st.subheader(current["section_practice"])
     st.markdown(current["label_practice_problems"], unsafe_allow_html=True)
-    practice_problems = st.multiselect("", current["practice_problems_options"], key="practice_problems")
+    practice_problems = st.multiselect("", current["practice_problems_options"], key="practice_problems",
+                                       default=[] if isinstance(st.session_state.form_data["practice_problems"], str) else st.session_state.form_data["practice_problems"])
     st.markdown(current["label_practice_tools"], unsafe_allow_html=True)
-    practice_tools = st.multiselect("", current["practice_tools_options"], key="practice_tools")
-
+    practice_tools = st.multiselect("", current["practice_tools_options"], key="practice_tools",
+                                    default=[] if isinstance(st.session_state.form_data["practice_tools"], str) else st.session_state.form_data["practice_tools"])
     st.subheader(current["section_it"])
     st.markdown(current["label_used_tech_before"], unsafe_allow_html=True)
     used_tech_before = radio_unanswered("used_tech_before", current["used_tech_before_options"])
     st.markdown(current["label_want_compare_3d"], unsafe_allow_html=True)
     want_compare_3d = radio_unanswered("want_compare_3d", current["want_compare_3d_options"])
-
     st.subheader(current["section_fee"])
     st.markdown(current["label_devices"], unsafe_allow_html=True)
-    preferred_devices = st.multiselect("", current["devices_options"], key="preferred_devices")
+    preferred_devices = st.multiselect("", current["devices_options"], key="preferred_devices",
+                                       default=[] if isinstance(st.session_state.form_data["preferred_devices"], str) else st.session_state.form_data["preferred_devices"])
     st.markdown(current["label_pay"], unsafe_allow_html=True)
-    pay_willingness = st.selectbox("", current["pay_options"], key="pay_willingness")
+    pay_willingness = st.selectbox("", current["pay_options"], key="pay_willingness",
+                                   index=current["pay_options"].index(st.session_state.form_data["pay_willingness"]) if st.session_state.form_data["pay_willingness"] in current["pay_options"] else 0)
     st.markdown(current["label_usefulness_points"], unsafe_allow_html=True)
-    usefulness_points = st.multiselect("", current["usefulness_points_options"], key="usefulness_points")
+    usefulness_points = st.multiselect("", current["usefulness_points_options"], key="usefulness_points",
+                                       default=[] if isinstance(st.session_state.form_data["usefulness_points"], str) else st.session_state.form_data["usefulness_points"])
     st.markdown(current["label_frequency"], unsafe_allow_html=True)
-    usage_frequency = st.selectbox("", current["frequency_options"], key="usage_frequency")
-
+    usage_frequency = st.selectbox("", current["frequency_options"], key="usage_frequency",
+                                   index=current["frequency_options"].index(st.session_state.form_data["usage_frequency"]) if st.session_state.form_data["usage_frequency"] in current["frequency_options"] else 0)
     st.subheader(current["section_motivation"])
     st.markdown(current["label_motivate_to_start"], unsafe_allow_html=True)
     motivate_to_start = radio_unanswered("motivate_to_start", current["motivate_to_start_options"])
     st.markdown(current["label_start_trigger"], unsafe_allow_html=True)
-    start_trigger_feature = st.text_area("", key="start_trigger_feature")
+    start_trigger_feature = st.text_area("", key="start_trigger_feature", value=st.session_state.form_data["start_trigger_feature"])
     st.markdown(current["label_concerns"], unsafe_allow_html=True)
-    concerns = st.text_area("", key="concerns")
-
+    concerns = st.text_area("", key="concerns", value=st.session_state.form_data["concerns"])
     submitted = st.form_submit_button(current["submit_button"])
 
 if submitted:
-    checks = {current["label_email"]: email.strip() != "", current["label_age"]: age > 0,
-                current["label_gender"]: gender != current["gender_options"][0], current["label_occupation"]: occupation.strip() != "",
-                current["label_interest"]: interest_ryukyu in current["interest_options"],
-                current["label_genres"]: len(dance_genres) > 0,
-                current["label_preservation_opinion"]: preservation_opinion in range(1, 6),
-                current["label_tech_resistance"]: tech_resistance in range(1, 6),
-                current["label_education_opinion"]: education_opinion in range(1, 6),
-                current["label_system_usefulness"]: system_usefulness in range(1, 6),
-                current["label_used_tech_before"]: used_tech_before in current["used_tech_before_options"],
-                current["label_want_compare_3d"]: want_compare_3d in current["want_compare_3d_options"],
-                current["label_pay"]: bool(pay_willingness),
-                current["label_motivate_to_start"]: motivate_to_start in current["motivate_to_start_options"]}
+    checks = {
+        current["label_email"]: email.strip() != "",
+        current["label_age"]: age > 0,
+        current["label_gender"]: gender != current["gender_options"][0],
+        current["label_occupation"]: occupation.strip() != "",
+        current["label_interest"]: interest_ryukyu in current["interest_options"],
+        current["label_genres"]: len(dance_genres) > 0,
+        current["label_preservation_opinion"]: preservation_opinion != unanswered,
+        current["label_tech_resistance"]: tech_resistance in current["used_tech_before_options"],
+        current["label_education_opinion"]: education_opinion != unanswered,
+        current["label_system_usefulness"]: system_usefulness in current["used_tech_before_options"],
+        current["label_used_tech_before"]: used_tech_before in current["used_tech_before_options"],
+        current["label_want_compare_3d"]: want_compare_3d in current["want_compare_3d_options"],
+        current["label_pay"]: bool(pay_willingness),
+        current["label_motivate_to_start"]: motivate_to_start in current["motivate_to_start_options"]
+    }
     missing = [label for label, ok in checks.items() if not ok]
     if missing:
         st.error(current["error_required"] + "\n\n" + current["error_missing_intro"] + "\n- " + "\n- ".join(missing))
     else:
-        df = pd.read_csv(DATA_FILE)
-        df.loc[len(df)] = {
-            "email": email, "age": age, "gender": gender, "occupation": occupation,
-            "interest_ryukyu": interest_ryukyu, "dance_genres": ";".join(dance_genres),
-            "experience_years": experience_years, "skill_rating": skill_rating,
-            "satisfaction_rating": satisfaction_rating, "self_learning_difficulty": self_learning_difficulty,
-            "practice_problems": ";".join(practice_problems), "practice_tools": ";".join(practice_tools),
-            "preservation_opinion": preservation_opinion, "tech_resistance": tech_resistance,
-            "education_opinion": education_opinion, "used_tech_before": used_tech_before,
-            "want_compare_3d": want_compare_3d, "preferred_devices": ";".join(preferred_devices),
-            "pay_willingness": pay_willingness, "system_usefulness": system_usefulness,
-            "usefulness_points": ";".join(usefulness_points), "usage_frequency": usage_frequency,
-            "motivate_to_start": motivate_to_start, "start_trigger_feature": start_trigger_feature,
-            "concerns": concerns
-        }
-        df.to_csv(DATA_FILE, index=False)
         st.success(current["success_message"])
-        st.balloons()
+        for col in COLS:
+            update_column(col)
+        st.switch_page("./pages/confirm.py")

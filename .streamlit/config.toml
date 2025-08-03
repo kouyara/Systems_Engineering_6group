@@ -4,3 +4,6 @@ base = "light"
 [server]
 headless = true
 runOnSave = true
+
+[client]
+showSidebarNavigation = false

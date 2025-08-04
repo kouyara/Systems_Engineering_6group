@@ -18,6 +18,19 @@ from plot_utils import (
     show_system_usefulness_bar,
 )
 
+st.markdown(
+    f"""
+    <style>
+    .st-emotion-cache-1nwdr1w a{{
+        color: #000;
+        text-decoration: none;
+        pointer-events: none;
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 t = {
     "ja": {
         "admin_only_warning": "このページは管理者専用です。ログインしてください。",

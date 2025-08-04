@@ -109,7 +109,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.write(f"{current['logged_in_as']}{st.session_state.admin_user}")
+st.text(f"{current['logged_in_as']}{st.session_state.admin_user}")
 
 DATA_FILE = Path(__file__).parents[1] / "survey_results.csv"
 try:
@@ -143,7 +143,7 @@ df["experience_years"] = pd.to_numeric(df["experience_years"], errors="coerce")
 df["skill_rating"] = pd.to_numeric(df["skill_rating"], errors="coerce")
 
 st.title(current["individual_view_title"])
-if df.empty or df.get("name", pd.Series()).isna().all():
+if df.empty or df.get("email", pd.Series()).isna().all():
     st.info(current["empty_data_info"])
 else:
     if "individual_idx" not in st.session_state:

@@ -141,7 +141,7 @@ if "form_data" not in st.session_state:
 
 DATA_FILE = "survey_results.csv"
 COLS = [
-    "name", "email", "age", "gender", "occupation",
+    "email", "age", "gender", "occupation",
     "interest_ryukyu",
     "dance_genres",
     "experience_years",
@@ -202,7 +202,7 @@ data = st.session_state.form_data
 with st.form("confirm_form"):
     # 基本情報
     st.subheader(current["section_basic"])
-    st.write(f"{current['label_email']}: {form_values['email']}")
+    st.text(f"{current['label_email']}: {form_values['email']}")
     st.write(f"{current['label_age']}: {form_values['age']}")
     st.write(f"{current['label_gender']}: {form_values['gender']}")
     st.write(f"{current['label_occupation']}: {form_values['occupation']}")
@@ -331,4 +331,5 @@ with st.form("confirm_form"):
                 "concerns": form_values["concerns"]
             }
             df.to_csv(DATA_FILE, index=False)
+            del st.session_state.form_data
             st.switch_page("./pages/complete.py")

@@ -96,44 +96,49 @@ def _t(key: str) -> str:
 
 def show_gender_pie(df: pd.DataFrame):
     st.subheader(_t("gender_pie_title"))
-    gender_counts = df["gender"].replace("選択してください", pd.NA).dropna().value_counts().sort_index()
-    if gender_counts.empty:
+    counts = df["gender"].replace("選択してください", pd.NA).dropna().value_counts().sort_index()
+    if counts.empty:
         st.write(_t("gender_pie_no"))
         return
+    cmap = plt.get_cmap("tab10")
+    colors = cmap(range(len(counts)))
     fig, ax = plt.subplots(figsize=(3, 3))
-    ax.pie(gender_counts.values, labels=gender_counts.index, autopct="%1.0f%%", startangle=90, wedgeprops={"linewidth":1,"edgecolor":"white"})
+    ax.pie(counts.values, labels=counts.index, colors=colors, autopct="%1.0f%%", startangle=90, wedgeprops={"linewidth":1,"edgecolor":"white"})
     ax.axis("equal")
     st.pyplot(fig)
 
 def show_age_bar(df: pd.DataFrame):
     st.subheader(_t("age_bar_title"))
-    age_bins = [10,20,30,40,50,60,70,80]
+    bins = [10,20,30,40,50,60,70,81]
     df2 = df.copy()
-    df2["age_group"] = pd.cut(df2["age"], bins=age_bins, right=False)
-    age_counts = df2["age_group"].value_counts().sort_index()
-    if age_counts.sum() == 0:
+    df2["age_group"] = pd.cut(df2["age"], bins=bins, right=False)
+    counts = df2["age_group"].value_counts().sort_index()
+    if counts.sum() == 0:
         st.write(_t("age_bar_no"))
         return
+    cmap = plt.get_cmap("tab10")
+    colors = cmap(range(len(counts)))
     fig, ax = plt.subplots(figsize=(6,4))
-    bars = ax.bar(age_counts.index.astype(str), age_counts.values)
+    bars = ax.bar(counts.index.astype(str), counts.values, color=colors)
     ax.set_ylabel(_t("age_bar_ylabel"))
-    ax.set_ylim(0, age_counts.values.max()+1)
+    ax.set_ylim(0, counts.values.max()+1)
     ax.bar_label(bars, padding=3)
-    buf = ax.yaxis
-    buf.grid(True, linestyle="--", alpha=0.3)
+    ax.grid(axis="y", linestyle="--", alpha=0.3)
     ax.set_axisbelow(True)
     st.pyplot(fig)
 
 def show_interest_bar(df: pd.DataFrame):
     st.subheader(_t("interest_bar_title"))
-    interest_counts = df["interest_ryukyu"].dropna().value_counts()
-    if interest_counts.sum() == 0:
+    counts = df["interest_ryukyu"].dropna().value_counts()
+    if counts.sum() == 0:
         st.write(_t("interest_bar_no"))
         return
+    cmap = plt.get_cmap("tab10")
+    colors = cmap(range(len(counts)))
     fig, ax = plt.subplots(figsize=(6,4))
-    bars = ax.bar(interest_counts.index, interest_counts.values)
+    bars = ax.bar(counts.index, counts.values, color=colors)
     ax.set_ylabel(_t("ratings_ylabel"))
-    ax.set_ylim(0, interest_counts.values.max()+1)
+    ax.set_ylim(0, counts.values.max()+1)
     ax.bar_label(bars, padding=3)
     ax.grid(axis="y", linestyle="--", alpha=0.3)
     ax.set_axisbelow(True)
@@ -141,15 +146,15 @@ def show_interest_bar(df: pd.DataFrame):
 
 def show_experience_skill_line(df: pd.DataFrame):
     st.subheader(_t("experience_skill_line_title"))
-    xpiv = df.dropna(subset=["experience_years","skill_rating"]).groupby("experience_years")["skill_rating"].mean().sort_index()
-    if xpiv.empty:
+    pivot = df.dropna(subset=["experience_years","skill_rating"]).groupby("experience_years")["skill_rating"].mean().sort_index()
+    if pivot.empty:
         st.write(_t("experience_skill_line_no"))
         return
     fig, ax = plt.subplots(figsize=(6,4))
-    ax.plot(xpiv.index, xpiv.values, marker="o", linewidth=2)
+    ax.plot(pivot.index, pivot.values, marker="o", linewidth=2)
     ax.set_xlabel(_t("experience_skill_line_xlabel"))
     ax.set_ylabel(_t("experience_skill_line_ylabel"))
-    ax.set_xticks(xpiv.index.astype(int))
+    ax.set_xticks(pivot.index.astype(int))
     ax.set_ylim(1,5)
     ax.grid(axis="y", linestyle="--", alpha=0.3)
     ax.set_axisbelow(True)
@@ -157,123 +162,141 @@ def show_experience_skill_line(df: pd.DataFrame):
 
 def show_skill_rating_bar(df: pd.DataFrame):
     st.subheader(_t("skill_rating_bar_title"))
-    rating_counts = df["skill_rating"].dropna().value_counts().sort_index()
-    if rating_counts.empty:
+    counts = df["skill_rating"].dropna().value_counts().sort_index()
+    if counts.empty:
         st.write(_t("skill_rating_bar_no"))
         return
+    cmap = plt.get_cmap("tab10")
+    colors = cmap(range(len(counts)))
     fig, ax = plt.subplots(figsize=(6,4))
-    bars = ax.bar(rating_counts.index, rating_counts.values)
+    bars = ax.bar(counts.index, counts.values, color=colors)
     ax.set_xlabel(_t("skill_rating_bar_xlabel"))
     ax.set_ylabel(_t("ratings_ylabel"))
-    ax.set_ylim(0, rating_counts.values.max()+1)
+    ax.set_ylim(0, counts.values.max()+1)
     ax.bar_label(bars, padding=3)
     st.pyplot(fig)
 
 def show_occupation_bar(df: pd.DataFrame):
     st.subheader(_t("occupation_bar_title"))
-    occ_counts = df["occupation"].dropna().value_counts()
-    if occ_counts.empty:
+    counts = df["occupation"].dropna().value_counts()
+    if counts.empty:
         st.write(_t("occupation_bar_no"))
         return
+    cmap = plt.get_cmap("tab10")
+    colors = cmap(range(len(counts)))
     fig, ax = plt.subplots(figsize=(6,4))
-    bars = ax.bar(occ_counts.index, occ_counts.values)
+    bars = ax.bar(counts.index, counts.values, color=colors)
     ax.set_ylabel(_t("occupation_bar_ylabel"))
-    ax.set_xticklabels(occ_counts.index, rotation=45, ha="right")
+    ax.set_xticklabels(counts.index, rotation=45, ha="right")
     ax.bar_label(bars, padding=3)
     st.pyplot(fig)
 
 def show_dance_genre_bar(df: pd.DataFrame):
     st.subheader(_t("dance_genre_bar_title"))
     series = df["dance_genres"].dropna().astype(str).str.strip()
-    series = series[series!=""]
-    all_genres = series.str.split(";").explode().value_counts()
-    if all_genres.empty:
+    series = series[series!="" ]
+    counts = series.str.split(";").explode().value_counts()
+    if counts.empty:
         st.write(_t("dance_genre_bar_no"))
         return
+    cmap = plt.get_cmap("tab10")
+    colors = cmap(range(len(counts)))
     fig, ax = plt.subplots(figsize=(6,4))
-    bars = ax.bar(all_genres.index, all_genres.values)
+    bars = ax.bar(counts.index, counts.values, color=colors)
     ax.set_ylabel(_t("dance_genre_bar_ylabel"))
-    ax.set_xticklabels(all_genres.index, rotation=45, ha="right")
+    ax.set_xticklabels(counts.index, rotation=45, ha="right")
     ax.bar_label(bars, padding=3)
     st.pyplot(fig)
 
 def show_practice_problems_bar(df: pd.DataFrame):
     st.subheader(_t("practice_problems_title"))
     series = df["practice_problems"].dropna().astype(str).str.strip()
-    series = series[series!=""]
-    problems = series.str.split(";").explode().value_counts()
-    if problems.empty:
+    series = series[series!="" ]
+    counts = series.str.split(";").explode().value_counts()
+    if counts.empty:
         st.write(_t("practice_problems_no"))
         return
+    cmap = plt.get_cmap("tab10")
+    colors = cmap(range(len(counts)))
     fig, ax = plt.subplots(figsize=(6,4))
-    bars = ax.bar(problems.index, problems.values)
+    bars = ax.bar(counts.index, counts.values, color=colors)
     ax.set_ylabel(_t("practice_problems_ylabel"))
-    ax.set_xticklabels(problems.index, rotation=45, ha="right")
+    ax.set_xticklabels(counts.index, rotation=45, ha="right")
     ax.bar_label(bars, padding=3)
     st.pyplot(fig)
 
 def show_practice_tools_bar(df: pd.DataFrame):
     st.subheader(_t("practice_tools_title"))
-    tools = df["practice_tools"].dropna().str.split(";").explode().value_counts()
-    if tools.empty:
+    counts = df["practice_tools"].dropna().str.split(";").explode().value_counts()
+    if counts.empty:
         st.write(_t("practice_tools_no"))
         return
+    cmap = plt.get_cmap("tab10")
+    colors = cmap(range(len(counts)))
     fig, ax = plt.subplots(figsize=(6,4))
-    bars = ax.bar(tools.index, tools.values)
+    bars = ax.bar(counts.index, counts.values, color=colors)
     ax.set_ylabel(_t("practice_tools_ylabel"))
-    ax.set_xticklabels(tools.index, rotation=45, ha="right")
+    ax.set_xticklabels(counts.index, rotation=45, ha="right")
     ax.bar_label(bars, padding=3)
     st.pyplot(fig)
 
 def show_tech_experience_pie(df: pd.DataFrame):
     st.subheader(_t("tech_experience_pie_title"))
-    exp_counts = df["used_tech_before"].dropna().value_counts()
-    if exp_counts.empty:
+    counts = df["used_tech_before"].dropna().value_counts()
+    if counts.empty:
         st.write(_t("tech_experience_pie_no"))
         return
+    cmap = plt.get_cmap("tab10")
+    colors = cmap(range(len(counts)))
     fig, ax = plt.subplots(figsize=(3,3))
-    ax.pie(exp_counts.values, labels=exp_counts.index, autopct="%1.0f%%", startangle=90, wedgeprops={"linewidth":1,"edgecolor":"white"})
+    ax.pie(counts.values, labels=counts.index, colors=colors, autopct="%1.0f%%", startangle=90, wedgeprops={"linewidth":1,"edgecolor":"white"})
     ax.axis("equal")
     st.pyplot(fig)
 
 def show_preferred_devices_bar(df: pd.DataFrame):
     st.subheader(_t("preferred_devices_title"))
     series = df["preferred_devices"].dropna().astype(str).str.strip()
-    series = series[series!=""]
-    devices = series.str.split(";").explode().value_counts()
-    if devices.empty:
+    series = series[series!="" ]
+    counts = series.str.split(";").explode().value_counts()
+    if counts.empty:
         st.write(_t("preferred_devices_no"))
         return
+    cmap = plt.get_cmap("tab10")
+    colors = cmap(range(len(counts)))
     fig, ax = plt.subplots(figsize=(6,4))
-    bars = ax.bar(devices.index, devices.values)
+    bars = ax.bar(counts.index, counts.values, color=colors)
     ax.set_ylabel(_t("preferred_devices_ylabel"))
-    ax.set_xticklabels(devices.index, rotation=45, ha="right")
+    ax.set_xticklabels(counts.index, rotation=45, ha="right")
     ax.bar_label(bars, padding=3)
     st.pyplot(fig)
 
 def show_pay_willingness_bar(df: pd.DataFrame):
     st.subheader(_t("pay_willingness_title"))
-    pay_counts = df["pay_willingness"].dropna().value_counts().sort_index()
-    if pay_counts.empty:
+    counts = df["pay_willingness"].dropna().value_counts().sort_index()
+    if counts.empty:
         st.write(_t("pay_willingness_no"))
         return
+    cmap = plt.get_cmap("tab10")
+    colors = cmap(range(len(counts)))
     fig, ax = plt.subplots(figsize=(6,4))
-    bars = ax.bar(pay_counts.index, pay_counts.values)
+    bars = ax.bar(counts.index, counts.values, color=colors)
     ax.set_ylabel(_t("pay_willingness_ylabel"))
-    ax.set_xticklabels(pay_counts.index, rotation=45, ha="right")
+    ax.set_xticklabels(counts.index, rotation=45, ha="right")
     ax.bar_label(bars, padding=3)
     st.pyplot(fig)
 
 def show_system_usefulness_bar(df: pd.DataFrame):
     st.subheader(_t("system_usefulness_title"))
-    values = df["system_usefulness"].dropna().value_counts().sort_index()
-    if values.empty:
+    counts = df["system_usefulness"].dropna().value_counts().sort_index()
+    if counts.empty:
         st.write(_t("system_usefulness_no"))
         return
+    cmap = plt.get_cmap("tab10")
+    colors = cmap(range(len(counts)))
     fig, ax = plt.subplots(figsize=(6,4))
-    bars = ax.bar(values.index.astype(str), values.values)
+    bars = ax.bar(counts.index.astype(str), counts.values, color=colors)
     ax.set_xlabel(_t("system_usefulness_xlabel"))
     ax.set_ylabel(_t("system_usefulness_ylabel"))
-    ax.set_ylim(0, values.values.max()+1)
+    ax.set_ylim(0, counts.values.max()+1)
     ax.bar_label(bars, padding=3)
     st.pyplot(fig)

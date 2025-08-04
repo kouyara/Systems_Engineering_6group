@@ -1,2 +1,6 @@
 age,gender,rating,email,occupation,interest_ryukyu,experience_years,skill_rating,other_dance_exp,practice_tools,dance_genres,satisfaction_rating,self_learning_difficulty,practice_problems,preservation_opinion,tech_resistance,education_opinion,used_tech_before,want_compare_3d,preferred_devices,pay_willingness,system_usefulness,usefulness_points,usage_frequency,motivate_to_start,start_trigger_feature,concerns
-120,男性,,kouya624694@gmail.com,学生,機会があれば習いたい,0,,,,ヒップホップ,,,,非常に賛成する,はい,どちらでもない,はい,はい,,月300円,はい,,未回答,はい,,
+12,男性,,user1@example.com,学生,機会があれば習いたい,0,,,,ヒップホップ,,,,非常に賛成する,はい,どちらでもない,いいえ,はい,,月300円,はい,,未回答,はい,,
+65,女性,,user2@example.com,自営業,見てみたい,1,3.0,,鏡;レッスン動画,社交,4.0,2.0,教わる機会・教室がない,どちらでもない,いいえ,どちらでもない,はい,いいえ,PC,内容次第でそれ以上払える,はい,客観的に動作を見れる,週1,はい,自分とプロの映像の場合の比較ができる機能,正確性が懸念点
+24,男性,,user3@example.com,学生,機会があれば習いたい,15,5.0,,自撮り確認;レッスン動画,バレエ;琉球舞踊;ジャズ;ヒップホップ,4.0,3.0,モチベーションがない;教わる機会・教室がない,非常に賛成する,はい,非常に賛成する,いいえ,いいえ,PC;スマートフォン;タブレット,無料でなければ使わない,いいえ,正しい動作を習得しやすい;時間短縮になる;独学がしやすい;客観的に動作を見れる;映像ではわからない部分が見れる,それ以上,はい,自分のダンスモーションを保存できる機能,特になし
+22,女性,,user4@example.com,学生,機会があれば習いたい,0,,,その他,未経験,,4.0,教わる機会・教室がない;自分の動作が正しいかわからない,どちらでもない,いいえ,どちらでもない,いいえ,いいえ,スマートフォン,月300円,はい,正しい動作を習得しやすい;独学がしやすい;時間短縮になる,月1,はい,特になし,特になし
+47,男性,,user5@example.com,会社員,見てみたい,0,,,,未経験,,3.0,手本が少ない,非常に賛成する,いいえ,どちらでもない,いいえ,いいえ,その他,わからない,はい,,週1,いいえ,特になし,特になし
